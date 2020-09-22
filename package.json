@@ -1,0 +1,25 @@
+{
+    "name": "spiritual-gifts-discovery-app",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "nuxt",
+        "build": "nuxt build",
+        "start": "nuxt start",
+        "generate": "nuxt generate"
+    },
+    "dependencies": {
+        "bootstrap": "^4.5.2",
+        "bootstrap-vue": "^2.16.0",
+        "chart.js": "^2.9.3",
+        "core-js": "^3.6.5",
+        "echarts": "^4.9.0",
+        "nuxt": "^2.14.5",
+        "nuxt-i18n": "^6.15.1",
+        "swiper": "^5.4.5",
+        "vue-awesome-swiper": "^4.1.1",
+        "vue-chartjs": "^3.5.1",
+        "vue-echarts": "^5.0.0-beta.0"
+    },
+    "devDependencies": {}
+}
