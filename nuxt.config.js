@@ -28,6 +28,9 @@ export default {
     }, {
         src: '@plugins/vue-echarts.client',
         mode: "client"
+    }, {
+        src: '@plugins/vue-apexcharts.client',
+        mode: "client"
     }],
 
     // Auto import components (https://go.nuxtjs.dev/config-components)

@@ -58,7 +58,7 @@ export default {
     'form1-question-55':   "Helping needy Christians by guiding them to relevant portions of the Bible and praying with them",
     'form1-question-56':   "Communicating biblical truth to others which produce change in knowledge , attitudes, values or conduct.",
     'form1-question-57':   "My nominating others for positions prove to be good selections",
-    'form1-question-58':   " I study and read a great deal to learn biblical truths",
+    'form1-question-58':   "I study and read a great deal to learn biblical truths",
     'form1-question-59':   "Able to counsel effectively the perplexed, guilty or addicted ",
     'form1-question-60':   "Accurately recognizing what spiritual gift another Christian has and does not have",
     'form1-question-61':   "Able to earn much money for giving to the Lord’s  work",

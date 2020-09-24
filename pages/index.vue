@@ -61,7 +61,7 @@
             v-for="(trial, index) in trials"
             :key="index"
             :value="index"
-            :class="{'active': index === activeTrialIndex}"
+            :class="{[$style['list-group-item']] : true, 'active': index === activeTrialIndex}"
             v-on:click="onListClick(index)"
           >{{trial.name + " - " + $t(trial.form.name) + " - " + trial.date.toISOString().split('T')[0]}}</b-list-group-item>
         </b-list-group>
@@ -78,7 +78,10 @@
             v-for="(statement, indexStatement) in trials[activeTrialIndex].form.statements"
             :key="indexStatement"
           >
-            <b-form-group :label="(indexStatement + 1) + '. ' + $t(statement)">
+            <b-form-group
+              :class="$style.statement"
+              :label="(indexStatement + 1) + '. ' + $t(statement)"
+            >
               <b-form-radio
                 v-for="(choice, indexChoice) in trials[activeTrialIndex].form.choices"
                 :key="indexChoice"
@@ -89,95 +92,76 @@
             </b-form-group>
           </swiper-slide>
           <div class="swiper-pagination" :class="$style['swiper-pagination']" slot="pagination"></div>
+
+          <div class="swiper-button-prev" :class="$style['swiper-button-prev']" slot="button-prev"></div>
+          <div class="swiper-button-next" :class="$style['swiper-button-next']" slot="button-next"></div>
         </swiper>
       </client-only>
 
-      <horizontal-bar-chart
-        ref="myChart"
-        :chartData.sync="chart.data"
-        :chartOptions="chart.options"
-        :height="200"
-      />
+      <div :class="$style['chart-wrapper']">
+        <!--v-chart ref="myChart" :class="$style.echarts"  manual-update autoresize/-->
+        <apexchart
+          width="550"
+          type="bar"
+          :class="$style.echarts"
+          :options="chartOptions"
+          :series="series"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { mapState, mapMutations } from "vuex";
-import HorizontalBarChart from "~/components/HorizontalBarChart";
 
-const chartColors = {
-  red: "rgb(255, 99, 132)",
-  orange: "rgb(255, 159, 64)",
-  yellow: "rgb(255, 205, 86)",
-  green: "rgb(75, 192, 192)",
-  blue: "rgb(54, 162, 235)",
-  purple: "rgb(153, 102, 255)",
-  grey: "rgb(201, 203, 207)",
-};
+import { Swiper, SwiperSlide } from "vue-awesome-swiper";
+import "swiper/css/swiper.css";
 
 export default {
   components: {
-    HorizontalBarChart,
+    Swiper,
+    SwiperSlide,
   },
   data: function () {
     return {
       form: {
-        firstName: "",
-        selectedFormIndex: null,
+        firstName: "Frédéric",
+        selectedFormIndex: 0,
       },
       answering: false,
       activeSlideIndex: 0,
       swiperOption: {
-        /*slidesPerView: 1,
-        watchOverflow: false,*/
-        initialSlide: this.activeSlideIndex,
-        pagination: true,
-        animating: true,
         navigation: {
           nextEl: ".swiper-button-next",
           prevEl: ".swiper-button-prev",
         },
         pagination: {
           el: ".swiper-pagination",
+          type: "fraction",
         },
       },
-      chart: {
-        data: {
-          labels: [],
-          datasets: [
-            {
-              label: "Score",
-              backgroundColor: "#f87979",
-              data: [],
-            },
-          ],
+      series: [
+        {
+          data: [],
         },
-        options: {
-          animation: {
-            duration: 0, // general animation time
+      ],
+      chartOptions: {
+        chart: {
+          type: "bar",
+          height: 550,
+        },
+        plotOptions: {
+          bar: {
+            horizontal: true,
           },
-          hover: {
-            animationDuration: 0, // duration of animations when hovering an item
-          },
-          responsiveAnimationDuration: 0, // animation duration after a resize
-          responsive: true,
-          legend: {
-            display: false,
-          },
-          title: {
-            display: true,
-            text: "Spiritual Gifts",
-          },
-          scales: {
-            yAxes: [
-              {
-                ticks: {
-                  beginAtZero: true,
-                },
-              },
-            ],
-          },
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        xaxis: {
+          categories: [
+          ],
         },
       },
     };
@@ -225,32 +209,44 @@ export default {
         choiceValue: choiceValue,
       });
 
-      //this.recreateChartData();
-      //console.log("DataX : ", this.chart.data.datasets.data);
+      this.series = [
+        {
+          data: this.trial.scores,
+        },
+      ];
     },
     onListClick(index) {
       this.SetActiveTrial(index);
     },
     onStart() {
       this.answering = true;
-      this.recreateChartData();
-    },
-    recreateChartData: async function () {
-      this.chart.data = {
-        labels: this.trial.form.gifts.map((x) => this.$t(x.gift)),
-        datasets: [
-          {
-            label: "Score",
-            backgroundColor: "#f87979",
-            data: this.trial.scores,
+
+      this.series = [
+        {
+          data: this.trial.scores,
+        },
+      ];
+
+      this.chartOptions = {
+        chart: {
+          type: "bar",
+          height: 550,
+        },
+        plotOptions: {
+          bar: {
+            horizontal: true,
           },
-        ],
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        xaxis: {
+          categories: this.trial.form.gifts.map((x) => this.$t(x.gift)),
+        },
       };
     },
   },
-  mounted: function () {
-
-  } 
+  mounted: function () {},
 };
 </script>
 
@@ -260,5 +256,30 @@ export default {
 }
 .swiper-pagination {
   position: relative;
+}
+
+.chart-wrapper {
+  width: 100%;
+  height: 400px;
+}
+
+.echarts {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-button-prev:after,
+.swiper-button-next:after {
+  color: #17a2b8;
+}
+
+.statement {
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
+.list-group-item.active {
+  background-color: #17a2b8 !important;
+  border-color: #17a2b8 !important;
 }
 </style>
