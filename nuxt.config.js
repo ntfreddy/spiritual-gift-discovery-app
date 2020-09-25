@@ -23,15 +23,21 @@ export default {
 
     // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
     plugins: [{
-        src: '@/plugins/vue-awesome-swiper.client',
-        mode: "client"
-    }, {
-        src: '@plugins/vue-echarts.client',
-        mode: "client"
-    }, {
-        src: '@plugins/vue-apexcharts.client',
-        mode: "client"
-    }],
+            src: '@/plugins/vue-awesome-swiper.client',
+            mode: "client"
+        },
+        /* {
+                    src: '@plugins/vue-echarts.client',
+                    mode: "client"
+                }, {
+                    src: '@plugins/vue-apexcharts.client',
+                    mode: "client"
+                },*/
+        {
+            src: '@plugins/vue-am4charts.client',
+            mode: "client"
+        }
+    ],
 
     // Auto import components (https://go.nuxtjs.dev/config-components)
     components: true,

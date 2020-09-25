@@ -97,17 +97,9 @@
           <div class="swiper-button-next" :class="$style['swiper-button-next']" slot="button-next"></div>
         </swiper>
       </client-only>
-
-      <div :class="$style['chart-wrapper']">
-        <!--v-chart ref="myChart" :class="$style.echarts"  manual-update autoresize/-->
-        <apexchart
-          width="550"
-          type="bar"
-          :class="$style.echarts"
-          :options="chartOptions"
-          :series="series"
-        />
       </div>
+
+        <div ref="myChart" :class="$style.am4charts" />
     </div>
   </div>
 </template>
@@ -141,29 +133,9 @@ export default {
           type: "fraction",
         },
       },
-      series: [
-        {
-          data: [],
-        },
-      ],
-      chartOptions: {
-        chart: {
-          type: "bar",
-          height: 550,
-        },
-        plotOptions: {
-          bar: {
-            horizontal: true,
-          },
-        },
-        dataLabels: {
-          enabled: false,
-        },
-        xaxis: {
-          categories: [
-          ],
-        },
-      },
+      chart: null,
+      values: [],
+      categories: [],
     };
   },
   computed: {
@@ -208,45 +180,66 @@ export default {
         indexStatement: indexStatement,
         choiceValue: choiceValue,
       });
+      this.values = this.trial.scores;
 
-      this.series = [
-        {
-          data: this.trial.scores,
-        },
-      ];
+       let data = [];
+    for (let i = 0; i < this.values.length; i++) {
+      data.push({ category: this.categories[i], value: this.values[i] });
+    }
+
+    this.chart.data = data;
+
+      this.chart.invalidateRawData();
     },
     onListClick(index) {
       this.SetActiveTrial(index);
     },
     onStart() {
       this.answering = true;
+      this.values = this.trial.scores;
+      this.categories = this.trial.form.gifts.map((x) => this.$t(x.gift));
 
-      this.series = [
-        {
-          data: this.trial.scores,
-        },
-      ];
+       let data = [];
+    for (let i = 0; i < this.values.length; i++) {
+      data.push({ category: this.categories[i], value: this.values[i] });
+    }
 
-      this.chartOptions = {
-        chart: {
-          type: "bar",
-          height: 550,
-        },
-        plotOptions: {
-          bar: {
-            horizontal: true,
-          },
-        },
-        dataLabels: {
-          enabled: false,
-        },
-        xaxis: {
-          categories: this.trial.form.gifts.map((x) => this.$t(x.gift)),
-        },
-      };
+    this.chart.data = data;
+
+      this.chart.invalidateRawData();
     },
   },
-  mounted: function () {},
+  mounted: function () {
+    let chart = this.$am4charts.am4core.create(
+      this.$refs.myChart,
+      this.$am4charts.am4charts.XYChart
+    );
+
+    let data = [];
+    for (let i = 0; i < this.values.length; i++) {
+      data.push({ category: this.categories[i], value: this.values[i] });
+    }
+
+    chart.data = data;
+
+    var categoryAxis = chart.yAxes.push(new this.$am4charts.am4charts.CategoryAxis());
+    categoryAxis.dataFields.category = "category";
+    categoryAxis.renderer.grid.template.location = 0;
+
+    var valueAxis = chart.xAxes.push(new this.$am4charts.am4charts.ValueAxis());
+
+    var series = chart.series.push(new this.$am4charts.am4charts.ColumnSeries());
+    series.dataFields.valueX = "value";
+    series.dataFields.categoryY = "category";
+
+    this.chart = chart;
+    this.chart.logo.disabled = true;
+  },
+  beforeDestroy: function () {
+    if (this.chart) {
+      this.chart.dispose();
+    }
+  },
 };
 </script>
 
@@ -281,5 +274,10 @@ export default {
 .list-group-item.active {
   background-color: #17a2b8 !important;
   border-color: #17a2b8 !important;
+}
+
+.am4charts {
+  width: 100%;
+  height: 600px;
 }
 </style>
