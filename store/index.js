@@ -354,12 +354,14 @@ export const mutations = {
     },
     ADD_TRIAL(state, f) {
         //console.log("form : ", f.form);
+
         state.trials.push({
             name: f.name,
             form: f.form,
             date: new Date(),
             results: Array(f.form.statements.length).fill(0),
-            scores: Array(f.form.gifts.length).fill(0)
+            scores: Array(f.form.gifts.length).fill(0),
+            maxScore: f.form.choices[f.form.choices.length - 1].value * f.form.gifts[0].relatedQuestions.length,
         });
         state.activeTrialIndex = state.trials.length - 1;
         state.trial = state.trials[state.activeTrialIndex];

@@ -1,19 +1,32 @@
 <template>
   <div>
     <b-navbar toggleable="lg" type="dark" variant="info">
-      <b-navbar-brand href="#">{{$t('app-name')}}</b-navbar-brand>
+      <b-navbar-nav class="mr-auto">
+        <b-nav-item v-show="answering">
+          <b-button
+            size="sm"
+            variant="outline-info"
+            class="mb-2"
+            @click="goHome"
+          >
+            <b-icon icon="house-door" aria-label="Help"></b-icon> Back
+          </b-button>
+        </b-nav-item>
+        <b-navbar-brand href="#">{{ $t("app-name") }}</b-navbar-brand>
+      </b-navbar-nav>
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav class="ml-auto">
           <b-nav-item-dropdown
-            :text="$i18n.locales.find(i => i.code === this.$i18n.locale).name"
+            :text="$i18n.locales.find((i) => i.code === this.$i18n.locale).name"
             right
           >
             <b-dropdown-item
               :to="switchLocalePath(locale.code)"
               v-for="(locale, index) in availableLocales"
               :key="index"
-            >{{ locale.name }}</b-dropdown-item>
+              >{{ locale.name }}</b-dropdown-item
+            >
           </b-nav-item-dropdown>
           <b-nav-item>
             <b-button
@@ -45,7 +58,9 @@
         <b-form-group id="form-group" label="Form" label-for="form">
           <b-form-select v-model="form.selectedFormIndex" required>
             <option value="null">Select a form</option>
-            <option v-for="(form, index) in forms" :key="index" :value="index">{{ $t(form.name)}}</option>
+            <option v-for="(form, index) in forms" :key="index" :value="index">
+              {{ $t(form.name) }}
+            </option>
           </b-form-select>
         </b-form-group>
 
@@ -61,46 +76,75 @@
             v-for="(trial, index) in trials"
             :key="index"
             :value="index"
-            :class="{[$style['list-group-item']] : true, 'active': index === activeTrialIndex}"
+            :class="{
+              [$style['list-group-item']]: true,
+              active: index === activeTrialIndex,
+            }"
             v-on:click="onListClick(index)"
-          >{{trial.name + " - " + $t(trial.form.name) + " - " + trial.date.toISOString().split('T')[0]}}</b-list-group-item>
+            >{{
+              trial.name +
+              " - " +
+              $t(trial.form.name) +
+              " - " +
+              trial.date.toISOString().split("T")[0]
+            }}</b-list-group-item
+          >
         </b-list-group>
 
         <b-card-body></b-card-body>
 
-        <b-button :class="{'disabled': !(trials.length > 0) }" variant="info" @click="onStart">Start</b-button>
+        <b-button
+          :class="{ disabled: !(trials.length > 0) }"
+          variant="info"
+          @click="onStart"
+          >Start</b-button
+        >
       </b-card>
     </div>
     <div v-else>
       <client-only>
         <swiper ref="mySwiper" :options="swiperOption" :class="$style.swiper">
           <swiper-slide
-            v-for="(statement, indexStatement) in trials[activeTrialIndex].form.statements"
+            v-for="(statement, indexStatement) in trials[activeTrialIndex].form
+              .statements"
             :key="indexStatement"
           >
             <b-form-group
               :class="$style.statement"
-              :label="(indexStatement + 1) + '. ' + $t(statement)"
+              :label="indexStatement + 1 + '. ' + $t(statement)"
             >
               <b-form-radio
-                v-for="(choice, indexChoice) in trials[activeTrialIndex].form.choices"
+                v-for="(choice, indexChoice) in trials[activeTrialIndex].form
+                  .choices"
                 :key="indexChoice"
                 v-on:change="onSelectionChange(indexStatement, choice.value)"
                 :name="'choice-' + indexStatement"
                 :value="choice.value"
-              >{{$t(choice.title)}}</b-form-radio>
+                >{{ $t(choice.title) }}</b-form-radio
+              >
             </b-form-group>
           </swiper-slide>
-          <div class="swiper-pagination" :class="$style['swiper-pagination']" slot="pagination"></div>
+          <div
+            class="swiper-pagination"
+            :class="$style['swiper-pagination']"
+            slot="pagination"
+          ></div>
 
-          <div class="swiper-button-prev" :class="$style['swiper-button-prev']" slot="button-prev"></div>
-          <div class="swiper-button-next" :class="$style['swiper-button-next']" slot="button-next"></div>
+          <div
+            class="swiper-button-prev"
+            :class="$style['swiper-button-prev']"
+            slot="button-prev"
+          ></div>
+          <div
+            class="swiper-button-next"
+            :class="$style['swiper-button-next']"
+            slot="button-next"
+          ></div>
         </swiper>
       </client-only>
-      </div>
-
-        <div ref="myChart" :class="$style.am4charts" />
     </div>
+
+    <div ref="myChart" :class="$style.am4charts" />
   </div>
 </template>
 
@@ -136,6 +180,8 @@ export default {
       chart: null,
       values: [],
       categories: [],
+      series: null,
+      valueAxis: null,
     };
   },
   computed: {
@@ -182,12 +228,12 @@ export default {
       });
       this.values = this.trial.scores;
 
-       let data = [];
-    for (let i = 0; i < this.values.length; i++) {
-      data.push({ category: this.categories[i], value: this.values[i] });
-    }
+      let data = [];
+      for (let i = 0; i < this.values.length; i++) {
+        data.push({ category: this.categories[i], value: this.values[i] });
+      }
 
-    this.chart.data = data;
+      this.chart.data = data;
 
       this.chart.invalidateRawData();
     },
@@ -199,15 +245,61 @@ export default {
       this.values = this.trial.scores;
       this.categories = this.trial.form.gifts.map((x) => this.$t(x.gift));
 
-       let data = [];
-    for (let i = 0; i < this.values.length; i++) {
-      data.push({ category: this.categories[i], value: this.values[i] });
-    }
+      let data = [];
+      for (let i = 0; i < this.values.length; i++) {
+        data.push({ category: this.categories[i], value: this.values[i] });
+      }
 
-    this.chart.data = data;
+      this.chart.data = data;
+
+      var max = this.trial.maxScore;
+
+      this.valueAxis.max = max;
+      //console.log(max);
+      var red = this.$am4charts.am4core.color("red");
+      var green = this.$am4charts.am4core.color("green");
+      //console.log(this.series);
+
+      let that = this;
+      this.series.columns.template.adapter.add("fill", function (fill, column) {
+        var columnGradient = new that.$am4charts.am4core.LinearGradient();
+        columnGradient.rotation = 180;
+        // interpolate(min.rgb, max.rgb, percent)
+
+        /*console.log(red.rgb);
+        console.log(green.rgb);
+        console.log(column)
+        console.log(column.dataItem)
+        console.log(column.dataItem.dataContext)
+        console.log(column.dataItem.dataContext.value)
+        console.log(
+          that.$am4charts.am4core.colors.interpolate(
+            red.rgb,
+            green.rgb,
+            column.dataItem.dataContext.value / max
+          )
+        );*/
+        columnGradient.addColor(
+          that.$am4charts.am4core.color(
+            that.$am4charts.am4core.colors.interpolate(
+              red.rgb,
+              green.rgb,
+              column.dataItem.dataContext.value / max
+            )
+          ),
+          1,
+          0
+        );
+        //columnGradient.addColor(green, 1, 0);
+        columnGradient.addColor(red, 1, 1);
+        return columnGradient;
+      });
 
       this.chart.invalidateRawData();
     },
+    goHome : function(){
+      this.answering = !this.answering;
+    }
   },
   mounted: function () {
     let chart = this.$am4charts.am4core.create(
@@ -222,15 +314,24 @@ export default {
 
     chart.data = data;
 
-    var categoryAxis = chart.yAxes.push(new this.$am4charts.am4charts.CategoryAxis());
+    var categoryAxis = chart.yAxes.push(
+      new this.$am4charts.am4charts.CategoryAxis()
+    );
     categoryAxis.dataFields.category = "category";
     categoryAxis.renderer.grid.template.location = 0;
+    categoryAxis.renderer.minGridDistance = 20;
 
-    var valueAxis = chart.xAxes.push(new this.$am4charts.am4charts.ValueAxis());
+    this.valueAxis = chart.xAxes.push(
+      new this.$am4charts.am4charts.ValueAxis()
+    );
+    this.valueAxis.min = 0;
+    this.valueAxis.max = 0;
 
-    var series = chart.series.push(new this.$am4charts.am4charts.ColumnSeries());
-    series.dataFields.valueX = "value";
-    series.dataFields.categoryY = "category";
+    this.series = chart.series.push(
+      new this.$am4charts.am4charts.ColumnSeries()
+    );
+    this.series.dataFields.valueX = "value";
+    this.series.dataFields.categoryY = "category";
 
     this.chart = chart;
     this.chart.logo.disabled = true;
