@@ -4,7 +4,7 @@ export default {
 
     // Global page headers (https://go.nuxtjs.dev/config-head)
     head: {
-        title: 'spiritual-gifts-discovery-app',
+        title: 'Spiritual gifts discovery app',
         meta: [
             { charset: 'utf-8' },
             { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -54,7 +54,7 @@ export default {
         ['nuxt-i18n', {
             lazy: true,
             langDir: 'lang/',
-            defaultLocale: 'en',
+            defaultLocale: 'rw',
             locales: [{
                     name: 'Kinyarwanda',
                     code: 'rw',
@@ -78,6 +78,10 @@ export default {
 
     // Build Configuration (https://go.nuxtjs.dev/config-build)
     build: {
-        transpile: ['vue-echarts', 'resize-detector']
+        extend(config, ctx) {
+            if (ctx.isDev) {
+                config.devtool = ctx.isClient ? 'source-map' : 'inline-source-map'
+            }
+        }
     }
 }

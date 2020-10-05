@@ -348,25 +348,28 @@ export const getters = {
 }
 
 export const mutations = {
-    SET_ACTIVE_TRIAL(state, index) {
+    SET_ACTIVE_TRIAL_INDEX(state, index) {
         state.activeTrialIndex = index;
+    },
+    INIT_TRIAL(state, data) {
+        state.trial = {
+            name: data.name,
+            form: data.form,
+            date: new Date(),
+            results: Array(data.form.statements.length).fill(0),
+            scores: Array(data.form.gifts.length).fill(0),
+            maxScore: data.form.choices[data.form.choices.length - 1].value * data.form.gifts[0].relatedQuestions.length,
+        };
+    },
+    LOAD_TRIAL(state) {
         state.trial = state.trials[state.activeTrialIndex];
     },
-    ADD_TRIAL(state, f) {
+    SAVE_TRIAL(state) {
         //console.log("form : ", f.form);
 
-        state.trials.push({
-            name: f.name,
-            form: f.form,
-            date: new Date(),
-            results: Array(f.form.statements.length).fill(0),
-            scores: Array(f.form.gifts.length).fill(0),
-            maxScore: f.form.choices[f.form.choices.length - 1].value * f.form.gifts[0].relatedQuestions.length,
-        });
-        state.activeTrialIndex = state.trials.length - 1;
-        state.trial = state.trials[state.activeTrialIndex];
+        state.trials.push(state.trial);
     },
-    UPDATE_SCORE(state, data) {
+    UPDATE_TRIAL_SCORE(state, data) {
         state.trial.results[data.indexStatement] = data.choiceValue;
         for (var i = 0; i < state.trial.form.gifts.length; i++) {
             var x = 0;

@@ -1,17 +1,7 @@
 <template>
   <div>
     <b-navbar toggleable="lg" type="dark" variant="info">
-      <b-navbar-nav class="mr-auto">
-        <b-nav-item v-show="answering">
-          <b-button
-            size="sm"
-            variant="outline-info"
-            class="mb-2"
-            @click="goHome"
-          >
-            <b-icon icon="house-door" aria-label="Help"></b-icon> Back
-          </b-button>
-        </b-nav-item>
+      <b-navbar-nav class="mr-auto">        
         <b-navbar-brand href="#">{{ $t("app-name") }}</b-navbar-brand>
       </b-navbar-nav>
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
@@ -33,43 +23,54 @@
               size="sm"
               variant="info"
               class="mb-2"
-              @click="$bvModal.show('add-trial-modal')"
+              @click="$bvModal.show('load-trial-modal')"
             >
-              <b-icon icon="plus-circle" aria-label="Help"></b-icon>
+              <b-icon icon="cloud-upload" aria-label="Help"></b-icon> {{$t('load')}}
+            </b-button>
+          </b-nav-item>
+          <b-nav-item>
+            <b-button
+              size="sm"
+              variant="info"
+              class="mb-2"
+              @click="$bvModal.show('save-trial-modal')"
+            >
+              <b-icon icon="cloud-download" aria-label="Help"></b-icon> {{$t('save')}}
             </b-button>
           </b-nav-item>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
 
-    <b-modal id="add-trial-modal" hide-footer>
-      <template v-slot:modal-title>Add trial</template>
-      <b-form @submit="onSubmit">
-        <b-form-group id="firstName-group" label="Name" label-for="firstName">
+    <b-modal id="save-trial-modal" hide-footer>
+      <template v-slot:modal-title>{{$t('save')}}</template>
+      <b-form @submit="onSaveTrial">
+        <b-form-group id="firstName-group" :label="$t('form-firstName-name')" label-for="firstName">
           <b-form-input
             id="firstName"
             v-model="form.firstName"
             type="text"
             required
-            placeholder="Enter your name"
+            :placeholder="$t('form-firstName-placeholder')"
           ></b-form-input>
         </b-form-group>
 
-        <b-form-group id="form-group" label="Form" label-for="form">
-          <b-form-select v-model="form.selectedFormIndex" required>
-            <option value="null">Select a form</option>
+        <b-form-group id="form-group" :label="$t('form-select-form')" label-for="form">
+          <b-form-select v-model="form.selectedFormIndex" required disabled>
+            <option value="null">{{$t('form-select')}}</option>
             <option v-for="(form, index) in forms" :key="index" :value="index">
               {{ $t(form.name) }}
             </option>
           </b-form-select>
         </b-form-group>
 
-        <b-button type="submit" variant="info">Add</b-button>
+        <b-button type="submit" variant="info">{{$t('save')}}</b-button>
       </b-form>
     </b-modal>
 
-    <div v-if="!answering">
-      <b-card no-body header="Trials">
+    <b-modal id="load-trial-modal" hide-footer>
+      <template v-slot:modal-title>{{$t('load')}}</template>
+      <b-card no-body header="">
         <b-list-group flush>
           <b-list-group-item
             variant="info"
@@ -96,53 +97,51 @@
         <b-button
           :class="{ disabled: !(trials.length > 0) }"
           variant="info"
-          @click="onStart"
-          >Start</b-button
+          @click="onLoadTrial"
+          >{{$t('load')}}</b-button
         >
       </b-card>
-    </div>
-    <div v-else>
-      <client-only>
-        <swiper ref="mySwiper" :options="swiperOption" :class="$style.swiper">
-          <swiper-slide
-            v-for="(statement, indexStatement) in trials[activeTrialIndex].form
-              .statements"
-            :key="indexStatement"
-          >
-            <b-form-group
-              :class="$style.statement"
-              :label="indexStatement + 1 + '. ' + $t(statement)"
-            >
-              <b-form-radio
-                v-for="(choice, indexChoice) in trials[activeTrialIndex].form
-                  .choices"
-                :key="indexChoice"
-                v-on:change="onSelectionChange(indexStatement, choice.value)"
-                :name="'choice-' + indexStatement"
-                :value="choice.value"
-                >{{ $t(choice.title) }}</b-form-radio
-              >
-            </b-form-group>
-          </swiper-slide>
-          <div
-            class="swiper-pagination"
-            :class="$style['swiper-pagination']"
-            slot="pagination"
-          ></div>
+    </b-modal>
 
-          <div
-            class="swiper-button-prev"
-            :class="$style['swiper-button-prev']"
-            slot="button-prev"
-          ></div>
-          <div
-            class="swiper-button-next"
-            :class="$style['swiper-button-next']"
-            slot="button-next"
-          ></div>
-        </swiper>
-      </client-only>
-    </div>
+    <client-only>
+      <swiper ref="mySwiper" :options="swiperOption" :class="$style.swiper">
+        <swiper-slide
+          v-for="(statement, indexStatement) in trial.form.statements"
+          :key="indexStatement"
+        >
+          <b-form-group
+            :class="$style.statement"
+            :label="indexStatement + 1 + '. ' + $t(statement)"
+          >
+            <b-form-radio
+              v-for="(choice, indexChoice) in trial.form
+                .choices"
+              :key="indexChoice"
+              v-on:change="onSelectionChange(indexStatement, choice.value)"
+              :name="'choice-' + indexStatement"
+              :value="choice.value"
+              >{{ $t(choice.title) }}</b-form-radio
+            >
+          </b-form-group>
+        </swiper-slide>
+        <div
+          class="swiper-pagination"
+          :class="$style['swiper-pagination']"
+          slot="pagination"
+        ></div>
+
+        <div
+          class="swiper-button-prev"
+          :class="$style['swiper-button-prev']"
+          slot="button-prev"
+        ></div>
+        <div
+          class="swiper-button-next"
+          :class="$style['swiper-button-next']"
+          slot="button-next"
+        ></div>
+      </swiper>
+    </client-only>
 
     <div ref="myChart" :class="$style.am4charts" />
   </div>
@@ -162,10 +161,9 @@ export default {
   data: function () {
     return {
       form: {
-        firstName: "Frédéric",
+        firstName: "",
         selectedFormIndex: 0,
       },
-      answering: false,
       activeSlideIndex: 0,
       swiperOption: {
         navigation: {
@@ -197,32 +195,36 @@ export default {
   },
   methods: {
     ...mapMutations({
-      AddTrial: "ADD_TRIAL",
-      UpdateScore: "UPDATE_SCORE",
-      SetActiveTrial: "SET_ACTIVE_TRIAL",
+      InitTrial: "INIT_TRIAL",
+      LoadTrial: "LOAD_TRIAL",
+      SaveTrial: "SAVE_TRIAL",
+      SetActiveTrialIndex: "SET_ACTIVE_TRIAL_INDEX",
+      UpdateTrialScore: "UPDATE_TRIAL_SCORE",
     }),
     onLangSelection: function (code) {
       this.switchLocalePath(code);
-      //console.log("Clicked:", code);
     },
-    onSubmit: function (e) {
+    onListClick: function(index) {
+      this.SetActiveTrialIndex(index);
+    },
+    onLoadTrial: function() {
+      this.LoadTrial();
+      this.onDrawGraphics();      
+      this.$bvModal.hide("load-trial-modal");
+    },
+    onSaveTrial: function (e) {
       e.preventDefault();
 
-      // console.log("Form:", this.forms);
-      this.AddTrial({
-        name: this.form.firstName,
-        form: this.forms[this.form.selectedFormIndex],
-      });
-      // this.answering = true;
+      this.SaveTrial();
       this.onReset();
-      this.$bvModal.hide("add-trial-modal");
+      this.$bvModal.hide("save-trial-modal");
     },
     onReset: function () {
       this.form.firstName = "";
       this.form.selectedFormIndex = null;
     },
-    onSelectionChange(indexStatement, choiceValue) {
-      this.UpdateScore({
+    onSelectionChange: function(indexStatement, choiceValue) {
+      this.UpdateTrialScore({
         indexStatement: indexStatement,
         choiceValue: choiceValue,
       });
@@ -237,11 +239,7 @@ export default {
 
       this.chart.invalidateRawData();
     },
-    onListClick(index) {
-      this.SetActiveTrial(index);
-    },
-    onStart() {
-      this.answering = true;
+    onDrawGraphics: function(){
       this.values = this.trial.scores;
       this.categories = this.trial.form.gifts.map((x) => this.$t(x.gift));
 
@@ -255,30 +253,14 @@ export default {
       var max = this.trial.maxScore;
 
       this.valueAxis.max = max;
-      //console.log(max);
       var red = this.$am4charts.am4core.color("red");
       var green = this.$am4charts.am4core.color("green");
-      //console.log(this.series);
 
       let that = this;
       this.series.columns.template.adapter.add("fill", function (fill, column) {
         var columnGradient = new that.$am4charts.am4core.LinearGradient();
         columnGradient.rotation = 180;
-        // interpolate(min.rgb, max.rgb, percent)
 
-        /*console.log(red.rgb);
-        console.log(green.rgb);
-        console.log(column)
-        console.log(column.dataItem)
-        console.log(column.dataItem.dataContext)
-        console.log(column.dataItem.dataContext.value)
-        console.log(
-          that.$am4charts.am4core.colors.interpolate(
-            red.rgb,
-            green.rgb,
-            column.dataItem.dataContext.value / max
-          )
-        );*/
         columnGradient.addColor(
           that.$am4charts.am4core.color(
             that.$am4charts.am4core.colors.interpolate(
@@ -290,16 +272,19 @@ export default {
           1,
           0
         );
-        //columnGradient.addColor(green, 1, 0);
         columnGradient.addColor(red, 1, 1);
         return columnGradient;
       });
 
       this.chart.invalidateRawData();
     },
-    goHome : function(){
-      this.answering = !this.answering;
-    }
+  },
+  created: function (){
+    this.InitTrial({
+      name: this.form.firstName,
+      form: this.forms[this.form.selectedFormIndex],
+    });
+
   },
   mounted: function () {
     let chart = this.$am4charts.am4core.create(
@@ -333,8 +318,18 @@ export default {
     this.series.dataFields.valueX = "value";
     this.series.dataFields.categoryY = "category";
 
+    chart.exporting.menu = new this.$am4charts.am4core.ExportMenu();
+    chart.exporting.menu.items = [
+      {
+        label: "...",
+        menu: [{ type: "png", label: "Image" }],
+      },
+    ];
+
     this.chart = chart;
     this.chart.logo.disabled = true;
+
+    this.onDrawGraphics();
   },
   beforeDestroy: function () {
     if (this.chart) {

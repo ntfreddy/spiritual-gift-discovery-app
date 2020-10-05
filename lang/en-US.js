@@ -1,6 +1,11 @@
 export default {
     'app-name': "Spiritual Gift Discovery",
-    'form1': "Form 1",
+    'save': "Save",
+    'load': "Load",
+    'form-firstName-name': "Name",
+    'form-firstName-placeholder': "Enter your Name",
+    'form-select-form': "Form",
+    'form-select': "Select a form",
     'form1-question-01':   "Enjoying the responsibility for the spiritual growth of a group of Christians.",
     'form1-question-02':   "Enabling persons to learn biblical truths in detail",
     'form1-question-03':   "Applying truth effectively in my own life",
