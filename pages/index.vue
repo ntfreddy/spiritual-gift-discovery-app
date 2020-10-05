@@ -347,16 +347,6 @@ export default {
   position: relative;
 }
 
-.chart-wrapper {
-  width: 100%;
-  height: 400px;
-}
-
-.echarts {
-  width: 100%;
-  height: 100%;
-}
-
 .swiper-button-prev:after,
 .swiper-button-next:after {
   color: #17a2b8;
