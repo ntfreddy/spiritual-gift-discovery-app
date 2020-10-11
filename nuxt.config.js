@@ -26,15 +26,12 @@ export default {
             src: '@/plugins/vue-awesome-swiper.client',
             mode: "client"
         },
-        /* {
-                    src: '@plugins/vue-echarts.client',
-                    mode: "client"
-                }, {
-                    src: '@plugins/vue-apexcharts.client',
-                    mode: "client"
-                },*/
         {
             src: '@plugins/vue-am4charts.client',
+            mode: "client"
+        },
+        {
+            src: "@/plugins/vue-storage-watcher.client",
             mode: "client"
         }
     ],

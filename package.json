@@ -16,7 +16,8 @@
         "nuxt": "^2.14.5",
         "nuxt-i18n": "^6.15.1",
         "swiper": "^5.4.5",
-        "vue-awesome-swiper": "^4.1.1"
+        "vue-awesome-swiper": "^4.1.1",
+        "vue-storage-watcher": "^1.3.3"
     },
     "devDependencies": {}
 }

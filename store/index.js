@@ -330,59 +330,14 @@ export const state = () => ({
             }, ],
         }
     ],
-    activeTrialIndex: null,
-    trial: {},
-    trials: [],
 })
 
 export const getters = {
     forms: state => {
         return state.forms
     },
-    trials: state => {
-        return state.trials
-    },
-    trial: state => {
-        return state.trial
-    }
 }
 
-export const mutations = {
-    SET_ACTIVE_TRIAL_INDEX(state, index) {
-        state.activeTrialIndex = index;
-    },
-    INIT_TRIAL(state, data) {
-        state.trial = {
-            name: data.name,
-            form: data.form,
-            date: new Date(),
-            results: Array(data.form.statements.length).fill(0),
-            scores: Array(data.form.gifts.length).fill(0),
-            maxScore: data.form.choices[data.form.choices.length - 1].value * data.form.gifts[0].relatedQuestions.length,
-        };
-    },
-    LOAD_TRIAL(state) {
-        state.trial = state.trials[state.activeTrialIndex];
-    },
-    SAVE_TRIAL(state) {
-        //console.log("form : ", f.form);
-
-        state.trials.push(state.trial);
-    },
-    UPDATE_TRIAL_SCORE(state, data) {
-        state.trial.results[data.indexStatement] = data.choiceValue;
-        for (var i = 0; i < state.trial.form.gifts.length; i++) {
-            var x = 0;
-            for (var j = 0; j < state.trial.form.gifts[i].relatedQuestions.length; j++) {
-                var index = state.trial.form.gifts[i].relatedQuestions[j];
-                //console.log("index : ", index);
-                //console.log("results[index] : ", state.trial.results[index]);
-                x += state.trial.results[index];
-            }
-            //console.log("x : ", x);
-            state.trial.scores[i] = x;
-        }
-    }
-}
+export const mutations = {}
 
 export const actions = {}
